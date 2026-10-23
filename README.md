@@ -120,6 +120,8 @@ Pick textual-inversion embeddings from a dropdown, set the strength of each one 
 
 ## MI Compare 3 Images
 
+![MI Compare 3 Images node](images/mi_compare_3_images.webp)
+
 Compare **up to three images** inside the node itself.
 
 **Features**
