@@ -1,7 +1,7 @@
 [project]
 name = "mi-nodes"
 description = "Pack of 5 ComfyUI nodes: MI Lora, MI Unet Rate, MI Embedding, MI Compare 3 Images and MI Save Image."
-version = "1.0.0"
+version = "1.0.1"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,3 +13,4 @@ Repository = "https://github.com/ThinkingBells/MI_nodes"
 [tool.comfy]
 PublisherId = "thinkingbells"
 DisplayName = "MI nodes"
+Icon = "https://raw.githubusercontent.com/ThinkingBells/MI_nodes/main/images/icon.png"
