@@ -14,12 +14,14 @@ All nodes live under a single menu category: **`MI nodes`**.
 
 ## Installation
 
-Clone this repository into your ComfyUI `custom_nodes` folder and restart ComfyUI:
+Clone this repository into your ComfyUI `custom_nodes` folder **in a folder called `MI nodes`** and restart ComfyUI:
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/ThinkingBells/MI_nodes.git
+git clone https://github.com/ThinkingBells/MI_nodes.git "MI nodes"
 ```
+
+The folder name is what ComfyUI shows as the badge at the top right of every node, so with this name all five nodes display **MI nodes**.
 
 Then reload the browser tab (Ctrl+F5) so the new interface code is loaded. No extra dependencies are needed.
 
