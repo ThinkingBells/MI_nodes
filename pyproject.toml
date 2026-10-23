@@ -1,0 +1,11 @@
+[project]
+name = "mi-nodes"
+version = "1.0.0"
+description = "MI nodes for ComfyUI: LoRA, embedding, UNet rating loader, 3-image compare and save."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.comfy]
+DisplayName = "MI nodes"
