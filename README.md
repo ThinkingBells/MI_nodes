@@ -141,6 +141,8 @@ Compare **up to three images** inside the node itself.
 
 ## MI Save Image
 
+![MI Save Image node](images/mi_save_image.webp)
+
 Receives one or several images and saves them to ComfyUI's `temp` folder with a preview. Nothing reaches your `output` folder until you decide: the **SAVE** button copies the visible image (or all images in grid view) there. It also passes the images through, so you can keep chaining nodes.
 
 **Features**
