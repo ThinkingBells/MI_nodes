@@ -162,6 +162,37 @@ app.registerExtension({
             // click a result to put its words in that row's `triggers` field
             const LINE_H = 18;
             const civ = { state: "idle", rows: [] };
+            const measure = document.createElement("canvas").getContext("2d");
+            // split a result into lines that fit the node width; continuation lines are indented
+            const wrap = (text, maxW) => {
+                measure.font = "13px sans-serif";
+                const out = [];
+                let line = "";
+                for (const word of text.split(" ")) {
+                    const test = line ? `${line} ${word}` : word;
+                    if (line && measure.measureText(test).width > maxW) {
+                        out.push(line);
+                        line = word;
+                    } else line = test;
+                }
+                if (line) out.push(line);
+                return out;
+            };
+            // y offset (below the button) and wrapped lines of every result
+            const layout = (nodeW) => {
+                const maxW = nodeW - 2 * 15 - 12;
+                let off = 0;
+                return civ.rows.map((r) => {
+                    const lines = wrap(`${r.i}: ${r.text}`, maxW);
+                    const block = { r, lines, off };
+                    off += lines.length * LINE_H + 2;
+                    return block;
+                });
+            };
+            const blocksHeight = (nodeW) => {
+                const b = layout(nodeW);
+                return b.length ? b[b.length - 1].off + b[b.length - 1].lines.length * LINE_H : 0;
+            };
             const fit = () => {
                 node.setSize([Math.max(node.size[0], 320), node.computeSize()[1]]);
                 node.setDirtyCanvas(true, true);
@@ -202,7 +233,7 @@ app.registerExtension({
                 value: null,
                 serialize: false,
                 options: { serialize: false },
-                computeSize: (w) => [w, LiteGraph.NODE_WIDGET_HEIGHT + 4 + civ.rows.length * LINE_H],
+                computeSize: (w) => [w, LiteGraph.NODE_WIDGET_HEIGHT + 4 + blocksHeight(node.size?.[0] ?? w)],
                 draw(ctx, n, width, y, h) {
                     const m = 15, w = n.size[0] - 2 * m;
                     this.y = y;
@@ -223,13 +254,13 @@ app.registerExtension({
                     ctx.textAlign = "center";
                     ctx.fillText(civ.state === "busy" ? "searching Civitai..." : "search triggers on Civitai", m + w / 2, y + h / 2 + 1);
                     ctx.textAlign = "left";
-                    civ.rows.forEach((r, k) => {
-                        const ry = y + h + 4 + k * LINE_H;
-                        const usable = r.words && hover(ry, LINE_H);
+                    layout(n.size[0]).forEach(({ r, lines, off }) => {
+                        const by = y + h + 4 + off;
+                        const usable = r.words && hover(by, lines.length * LINE_H);
                         ctx.fillStyle = usable ? "#E0702D" : (r.words ? LiteGraph.WIDGET_TEXT_COLOR : LiteGraph.WIDGET_SECONDARY_TEXT_COLOR);
-                        let text = `${r.i}: ${r.text}`;
-                        while (text.length > 4 && ctx.measureText(text).width > w) text = text.slice(0, -2) + "…";
-                        ctx.fillText(text, m + 6, ry + LINE_H / 2);
+                        lines.forEach((text, k) => {
+                            ctx.fillText(text, m + 6 + (k ? 14 : 0), by + k * LINE_H + LINE_H / 2);
+                        });
                     });
                 },
                 mouse(event, pos, n) {
@@ -240,8 +271,9 @@ app.registerExtension({
                         searchCivitai();
                         return true;
                     }
-                    const k = Math.floor((pos[1] - (this.y + this.h + 4)) / LINE_H);
-                    const r = civ.rows[k];
+                    const ry = pos[1] - (this.y + this.h + 4);
+                    const hit = layout(n.size[0]).find((b) => ry >= b.off && ry < b.off + b.lines.length * LINE_H);
+                    const r = hit?.r;
                     if (r && r.words) {
                         const trigW = byName(`triggers_${r.i}`);
                         trigW.value = r.words;
