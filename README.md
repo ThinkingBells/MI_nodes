@@ -160,6 +160,8 @@ Receives one or several images and saves them to ComfyUI's `temp` folder with a 
 
 ## MI Reroute Sound
 
+![MI Reroute Sound node](images/mi_reroute_sound.png)
+
 A minimal reroute: whatever you connect passes through unchanged, and when the flow goes through it the chosen **WAV sound plays**. Handy to know that a long generation has reached a point, without watching the screen.
 
 **Features**
