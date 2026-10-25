@@ -276,14 +276,14 @@ app.registerExtension({
                     ctx.textAlign = "left";
                     blocks.forEach(({ r, lines, off }) => {
                         const by = top + PAD + off;
-                        const usable = r.words && over(by, lines.length * LINE_H);
+                        const hovered = r.words && over(by, lines.length * LINE_H);
                         // number in orange, bold
                         ctx.font = "bold 16px sans-serif";
                         ctx.fillStyle = "#E0702D";
                         ctx.fillText(String(r.i), M + PAD, by + LINE_H / 2);
                         // text: white, italic when there is nothing to use
                         ctx.font = (r.words ? "" : "italic ") + FONT;
-                        ctx.fillStyle = usable ? "#E0702D" : LiteGraph.WIDGET_TEXT_COLOR;
+                        ctx.fillStyle = hovered ? "#E0702D" : LiteGraph.WIDGET_TEXT_COLOR;
                         lines.forEach((text, k) => ctx.fillText(text, M + PAD + NUM_W, by + k * LINE_H + LINE_H / 2));
                     });
                 },
