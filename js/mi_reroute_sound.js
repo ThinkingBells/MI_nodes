@@ -6,11 +6,9 @@ const NONE = "(none)";
 const NOTE = "♪";
 const ACCENT = "#e0702d";
 
-// compact title: "♪ ding" (or "♪ none" when silent)
+// compact title: just the note
 function setTitle(node) {
-    const sound = node.widgets?.find((w) => w.name === "sound")?.value;
-    const name = sound && sound !== NONE ? sound.replace(/\.wav$/i, "") : "none";
-    node.title = `${NOTE} ${name}`;
+    node.title = NOTE;
 }
 
 function play(name) {
@@ -35,8 +33,6 @@ app.registerExtension({
                 const cb = combo.callback;
                 combo.callback = function (value) {
                     cb?.apply(this, arguments);
-                    setTitle(node);
-                    node.setDirtyCanvas?.(true, true);
                     play(value);
                 };
             }
@@ -54,22 +50,14 @@ app.registerExtension({
             setTitle(this);
         };
 
-        // orange musical note followed by the sound name in the normal title colour
-        nodeType.prototype.onDrawTitleText = function (ctx, titleHeight, size, scale, fontStyle, selected) {
+        // orange musical note as the whole title
+        nodeType.prototype.onDrawTitleText = function (ctx, titleHeight, size, scale, fontStyle) {
             if (scale < 0.5) return;
-            const LG = window.LiteGraph;
-            const baseline = (LG?.NODE_TITLE_TEXT_Y ?? 20) - titleHeight;
-            const title = this.getTitle?.() ?? this.title ?? "";
-            const rest = title.replace(/^♪\s*/, "");
+            const baseline = (window.LiteGraph?.NODE_TITLE_TEXT_Y ?? 20) - titleHeight;
             ctx.font = fontStyle;
             ctx.textAlign = "left";
             ctx.fillStyle = ACCENT;
             ctx.fillText(NOTE, titleHeight, baseline);
-            if (!rest) return;
-            ctx.fillStyle = selected
-                ? (LG?.NODE_SELECTED_TITLE_COLOR ?? "#FFF")
-                : (this.constructor.title_text_color || app.canvas?.node_title_color || "#AAA");
-            ctx.fillText(rest, titleHeight + ctx.measureText(`${NOTE} `).width, baseline);
         };
 
         const onExecuted = nodeType.prototype.onExecuted;
