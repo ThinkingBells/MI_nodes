@@ -39,7 +39,7 @@ app.registerExtension({
             if (scale < 0.5) return;
             const LG = window.LiteGraph;
             const baseline = (LG?.NODE_TITLE_TEXT_Y ?? 20) - titleHeight;
-            const text = (this.getTitle?.() ?? this.title ?? "").replace(new RegExp(`\s*${NOTE}$`), "");
+            const text = (this.getTitle?.() ?? this.title ?? "").replace(/\s*♪$/, "");
             ctx.font = fontStyle;
             ctx.textAlign = "left";
             ctx.fillStyle = selected
