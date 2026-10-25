@@ -264,7 +264,7 @@ app.registerExtension({
                     const boxH = boxHeight(n.size[0]) - GAP;
 
                     // framed results box
-                    ctx.fillStyle = "rgba(255,255,255,0.05)";
+                    ctx.fillStyle = "#353535";
                     ctx.strokeStyle = LiteGraph.WIDGET_OUTLINE_COLOR;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
