@@ -160,7 +160,9 @@ app.registerExtension({
 
             // Civitai line: looks the active LoRAs up by file hash and lists their trigger words
             // in a framed box; click a result to put its words in that row's `triggers` field
-            const M = 15, PAD = 10, GAP = 10, LINE_H = 22, NUM_W = 24, FONT = "14px sans-serif";
+            const M = 15, PAD = 10, GAP = 10, LINE_H = 17, NUM_W = 20;
+            // same text size and font as the rest of the node
+            const FONT = `${LiteGraph.NODE_SUBTEXT_SIZE}px ${LiteGraph.DEFAULT_FONT || "sans-serif"}`;
             const civ = { state: "idle", rows: [] };
             const measure = document.createElement("canvas").getContext("2d");
             const fit = () => {
@@ -254,7 +256,7 @@ app.registerExtension({
                     ctx.fill();
                     ctx.stroke();
                     ctx.fillStyle = LiteGraph.WIDGET_TEXT_COLOR;
-                    ctx.font = "14px sans-serif";
+                    ctx.font = FONT;
                     ctx.textAlign = "center";
                     ctx.fillText(civ.state === "busy" ? "searching Civitai..." : "search triggers on Civitai", M + w / 2, y + h / 2 + 1);
 
@@ -278,7 +280,7 @@ app.registerExtension({
                         const by = top + PAD + off;
                         const hovered = r.words && over(by, lines.length * LINE_H);
                         // number in orange, bold
-                        ctx.font = "bold 16px sans-serif";
+                        ctx.font = `bold ${LiteGraph.NODE_SUBTEXT_SIZE + 1}px ${LiteGraph.DEFAULT_FONT || "sans-serif"}`;
                         ctx.fillStyle = "#E0702D";
                         ctx.fillText(String(r.i), M + PAD, by + LINE_H / 2);
                         // text: white, italic when there is nothing to use
