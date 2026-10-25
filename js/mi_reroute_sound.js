@@ -42,8 +42,10 @@ app.registerExtension({
             }
             node.setSize([190, 56]);
             setTitle(node);
-            // new nodes start collapsed (a loaded workflow restores its own state afterwards)
-            node.collapse?.(true);
+            // new nodes start collapsed (a loaded workflow restores its own state afterwards);
+            // set the flag directly: collapse() needs the node to be in a graph already
+            node.flags = node.flags || {};
+            node.flags.collapsed = true;
         };
 
         const onConfigure = nodeType.prototype.onConfigure;
