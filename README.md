@@ -36,7 +36,7 @@ To find a node: double-click the canvas and type its name, or browse the **MI no
 
 Loads several LoRAs from one node and **remembers the trigger words of each one**. Write the trigger words once: they are saved per LoRA, filled in automatically the next time you pick it, and sent as text to your prompt.
 
-![MI Lora node](images/mi_lora.webp)
+![MI Lora node](images/mi_lora.png)
 
 **Why:** stacking LoRAs usually means a chain of loader nodes plus a notes file to remember which words activate each one. MI Lora puts the LoRAs, their strengths, their trigger words and an on/off switch in one compact node.
 
@@ -121,7 +121,7 @@ Pick textual-inversion embeddings from a dropdown, set the strength of each one 
 
 ## MI Compare 3 Images
 
-![MI Compare 3 Images node](images/mi_compare_3_images.webp)
+![MI Compare 3 Images node](images/mi_compare_3_images.png)
 
 Compare **up to three images** inside the node itself.
 
@@ -144,7 +144,7 @@ Compare **up to three images** inside the node itself.
 
 ## MI Save Image
 
-![MI Save Image node](images/mi_save_image.webp)
+![MI Save Image node](images/mi_save_image.png)
 
 Receives one or several images and saves them to ComfyUI's `temp` folder with a preview. Nothing reaches your `output` folder until you decide: the **SAVE** button copies the visible image (or all images in grid view) there. It also passes the images through, so you can keep chaining nodes.
 
