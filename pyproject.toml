@@ -1,7 +1,7 @@
 [project]
 name = "mi-nodes"
-description = "Pack of 5 ComfyUI nodes: MI Lora, MI Unet Rate, MI Embedding, MI Compare 3 Images and MI Save Image."
-version = "1.0.1"
+description = "Pack of 6 ComfyUI nodes: MI Lora, MI Unet Rate, MI Embedding, MI Compare 3 Images, MI Save Image and MI Reroute Sound."
+version = "1.1.0"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"
