@@ -55,4 +55,4 @@ class MI_reroute_sound:
 
 
 NODE_CLASS_MAPPINGS = {"MI_reroute_sound": MI_reroute_sound}
-NODE_DISPLAY_NAME_MAPPINGS = {"MI_reroute_sound": "MI Reroute Sound"}
+NODE_DISPLAY_NAME_MAPPINGS = {"MI_reroute_sound": "MI Reroute Sound ♪"}
