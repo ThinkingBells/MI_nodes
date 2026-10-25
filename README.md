@@ -1,40 +1,52 @@
+<p align="center">
+  <img src="images/icon.png" alt="MI nodes - tools for a more connected workflow" width="100%">
+</p>
+
 # MI nodes
 
-**A pack of six ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side and save only the results you like.
+[![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
+[![ComfyUI](https://img.shields.io/badge/ComfyUI-custom%20nodes-1fb6d5.svg)](https://github.com/comfyanonymous/ComfyUI)
+[![Comfy Registry](https://img.shields.io/badge/Comfy%20Registry-mi--nodes-blue.svg)](https://registry.comfy.org/publishers/thinkingbells/nodes/mi-nodes)
 
-All nodes live under a single menu category: **`MI nodes`**.
+**A pack of six ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered (and Civitai-searchable) trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side, save only the results you like, and get a sound when a long run reaches a point.
+
+All nodes live under one menu category, **`MI nodes`**, and show the same **MI nodes** badge.
 
 | Node | What it does |
 |------|--------------|
-| [MI Lora](#mi-lora) | Several LoRAs in one node, with per-LoRA on/off, strength and remembered trigger words |
+| [MI Lora](#mi-lora) | Several LoRAs in one node: on/off per row, strength, remembered trigger words and a Civitai lookup |
 | [MI Unet Rate](#mi-unet-rate) | UNET / diffusion-model loader where you rate (1-3 stars) and comment every model |
 | [MI Embedding](#mi-embedding) | Embedding picker with strength, on/off switch and several rows |
-| [MI Compare 3 Images](#mi-compare-3-images) | Compare up to three images in the node: switch, wipe, save |
+| [MI Compare 3 Images](#mi-compare-3-images) | Compare up to three images inside the node: switch, wipe, save |
 | [MI Save Image](#mi-save-image) | Preview in `temp`, copy to `output` only when you press **SAVE** |
 | [MI Reroute Sound](#mi-reroute-sound) | A minimal reroute that plays a WAV sound when the flow passes through it |
 
 ## Installation
 
-Clone this repository into your ComfyUI `custom_nodes` folder and restart ComfyUI:
+**With git** (recommended, always the latest version). Clone into your ComfyUI `custom_nodes` folder:
 
 ```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/ThinkingBells/MI_nodes.git
 ```
 
-Keep the folder name `MI_nodes` (no spaces: ComfyUI cannot serve the interface files of a folder with a space in its name). The badge at the top right of every node reads **MI nodes**.
+**With ComfyUI-Manager or comfy-cli.** Search for **MI nodes** in the Manager, or run `comfy node install mi-nodes`. The registry publishes each version after a review, so it can be a little behind this repository.
 
-Then reload the browser tab (Ctrl+F5) so the new interface code is loaded. No extra dependencies are needed.
+Then restart ComfyUI and reload the browser tab (Ctrl+F5). No extra Python dependencies are needed.
 
-> If you previously installed the standalone packages (`MI_lora`, `MI_embedding`, `MI_unet_rate`, `MiCompare_3_images`, `MIsave_image`), remove them first: the nodes would appear twice. The internal node names are unchanged, so existing workflows keep working.
+> Keep the folder name `MI_nodes`. It must not contain spaces: ComfyUI cannot serve the interface files of a folder with a space in its name.
+>
+> If you previously installed the standalone packages (`MI_lora`, `MI_embedding`, `MI_unet_rate`, `MiCompare_3_images`, `MIsave_image`), remove them first or the nodes will appear twice. The internal node names are unchanged, so existing workflows keep working.
 
-To find a node: double-click the canvas and type its name, or browse the **MI nodes** category.
+To **update**: `git pull` inside the folder and restart. To find a node: double-click the canvas and type its name, or browse the **MI nodes** category.
+
+**Compatibility:** developed and tested with ComfyUI 0.42 and frontend 1.55 (classic canvas), Python 3.10+.
 
 ---
 
 ## MI Lora
 
-Loads several LoRAs from one node and **remembers the trigger words of each one**. Write the trigger words once: they are saved per LoRA, filled in automatically the next time you pick it, and sent as text to your prompt.
+Loads several LoRAs from one node and **remembers the trigger words of each one**. Write the trigger words once: they are saved per LoRA, filled in automatically the next time you pick it, and sent as text to your prompt. Not sure what a LoRA's trigger words are? Look them up on Civitai from the node.
 
 ![MI Lora node](images/mi_lora.png)
 
@@ -46,14 +58,14 @@ Loads several LoRAs from one node and **remembers the trigger words of each one*
 - **On / off per LoRA**: a row that is off is skipped (the LoRA is not applied and its trigger words are not sent). Its fields are greyed out and the saved words are kept.
 - **One strength per LoRA**: from -10 to 10, applied to both model and clip.
 - **Trigger words per LoRA**: saved for that LoRA and filled in whenever you pick it again, in any node or workflow.
-- **Civitai lookup**: the **search triggers on Civitai** line at the bottom of the node finds your active LoRAs on Civitai and lists their trigger words, one line per LoRA. Click a line to put its words in that row's `triggers` field.
+- **Civitai lookup**: press **search triggers on Civitai** at the bottom of the node. Every active LoRA is looked up by its file hash and a framed box lists the trigger words found, one numbered result per row. Click a result to put its words in that row's `triggers` field. Long lists wrap onto several lines. Results without trigger words (or not found) are shown in italics and are not clickable.
 - **Sent as text**: the `text` output is your incoming prompt followed by the trigger words of every active LoRA.
 - **Subgraph friendly**: every row uses standard widgets.
 
 **Usage**
 
 1. Connect `model` and `clip`, and optionally a `STRING` prompt to `text`.
-2. Pick a LoRA, set its strength and write its trigger words (comma separated).
+2. Pick a LoRA, set its strength and write its trigger words (comma separated), or fetch them from Civitai.
 3. Connect `model` and `clip` to your sampler and text encoder, and `text` to the text input of a `CLIPTextEncode` (convert the widget to an input first).
 
 | Text in | LoRA rows | `text` output |
@@ -64,7 +76,7 @@ Loads several LoRAs from one node and **remembers the trigger words of each one*
 
 Rows set to `(none)` are ignored.
 
-**Civitai lookup and privacy:** nothing is sent until you click the line. Then only the SHA256 hash of each LoRA file is sent to `civitai.com` (never the file). Hashes are cached in `data/hashes.json`, so each file is hashed only once. A LoRA that is not on Civitai, or has no trigger words listed, is reported as such.
+**Civitai lookup and privacy.** Nothing is sent until you press the search line. Then only the SHA256 hash of each active LoRA file is sent to `civitai.com`, never the file itself. Hashes are cached in `data/hashes.json`, so each file is hashed only once (the first search on a large LoRA can take a few seconds). A LoRA that is not on Civitai, or that lists no trigger words, is reported as such.
 
 **Good to know:** trigger words are tied to the LoRA path and file name inside the `loras` folder; renaming a file makes it a new LoRA. The LoRA list is read at startup, so restart ComfyUI after adding files.
 
@@ -124,9 +136,9 @@ Pick textual-inversion embeddings from a dropdown, set the strength of each one 
 
 ## MI Compare 3 Images
 
-![MI Compare 3 Images node](images/mi_compare_3_images.png)
-
 Compare **up to three images** inside the node itself.
+
+![MI Compare 3 Images node](images/mi_compare_3_images.png)
 
 **Features**
 
@@ -147,9 +159,9 @@ Compare **up to three images** inside the node itself.
 
 ## MI Save Image
 
-![MI Save Image node](images/mi_save_image.png)
-
 Receives one or several images and saves them to ComfyUI's `temp` folder with a preview. Nothing reaches your `output` folder until you decide: the **SAVE** button copies the visible image (or all images in grid view) there. It also passes the images through, so you can keep chaining nodes.
+
+![MI Save Image node](images/mi_save_image.png)
 
 **Features**
 
@@ -163,9 +175,9 @@ Receives one or several images and saves them to ComfyUI's `temp` folder with a 
 
 ## MI Reroute Sound
 
-![MI Reroute Sound node](images/mi_reroute_sound.png)
-
 A minimal reroute: whatever you connect passes through unchanged, and when the flow goes through it the chosen **WAV sound plays**. Handy to know that a long generation has reached a point, without watching the screen.
+
+![MI Reroute Sound node](images/mi_reroute_sound.png)
 
 **Features**
 
@@ -189,7 +201,7 @@ Personal data is kept in the `data/` folder of this package and is ignored by gi
 | `ratings.json` | Model name to rating, 1-3 (MI Unet Rate) |
 | `notes.json` | Model name to comment (MI Unet Rate) |
 
-Back them up if you want to keep them. Nothing is sent anywhere.
+Back them up if you want to keep them. Nothing leaves your computer except the LoRA hash you send to Civitai when you press the search line.
 
 ## Repository layout
 
@@ -199,8 +211,8 @@ MI_nodes/
 ├── nodes/             # one Python module per node
 ├── js/                # frontend extensions
 ├── sounds/            # .wav files for MI Reroute Sound
-├── images/            # screenshots
-└── data/              # your ratings, notes and trigger words
+├── images/            # banner and screenshots
+└── data/              # your ratings, notes, trigger words and hashes (not in git)
 ```
 
 ## License
