@@ -266,7 +266,7 @@ app.registerExtension({
                     // framed results box
                     ctx.fillStyle = "#353535";
                     ctx.strokeStyle = LiteGraph.WIDGET_OUTLINE_COLOR;
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.rect(M, top, w, boxH);
                     ctx.fill();
