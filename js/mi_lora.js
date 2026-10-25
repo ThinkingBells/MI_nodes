@@ -158,6 +158,101 @@ app.registerExtension({
                 },
             });
 
+            // Civitai line: looks the active LoRAs up by file hash and lists their trigger words;
+            // click a result to put its words in that row's `triggers` field
+            const LINE_H = 18;
+            const civ = { state: "idle", rows: [] };
+            const fit = () => {
+                node.setSize([Math.max(node.size[0], 320), node.computeSize()[1]]);
+                node.setDirtyCanvas(true, true);
+            };
+            const searchCivitai = async () => {
+                if (civ.state === "busy") return;
+                const rows = [];
+                for (let i = 1; i <= Number(countW.value); i++) {
+                    const lora = byName(`lora_${i}`).value;
+                    if (lora && lora !== NONE && byName(`on_${i}`).value) rows.push({ i, lora });
+                }
+                civ.state = "busy";
+                civ.rows = rows.map((r) => ({ ...r, text: "searching...", words: null }));
+                fit();
+                await Promise.all(civ.rows.map(async (r) => {
+                    try {
+                        const res = await api.fetchApi(`/mi_lora/civitai?lora=${encodeURIComponent(r.lora)}`);
+                        const d = await res.json();
+                        if (!res.ok) r.text = d.error || "error";
+                        else if (!d.found) r.text = "not found on Civitai";
+                        else if (!d.words.length) r.text = `${d.model}: no trigger words`;
+                        else {
+                            r.words = d.words.join(", ");
+                            r.text = r.words;
+                        }
+                    } catch (e) {
+                        r.text = "could not reach Civitai";
+                    }
+                    node.setDirtyCanvas(true, true);
+                }));
+                civ.state = "idle";
+                fit();
+            };
+
+            node.addCustomWidget({
+                name: "mi_civitai",
+                type: "mi_civitai",
+                value: null,
+                serialize: false,
+                options: { serialize: false },
+                computeSize: (w) => [w, LiteGraph.NODE_WIDGET_HEIGHT + 4 + civ.rows.length * LINE_H],
+                draw(ctx, n, width, y, h) {
+                    const m = 15, w = n.size[0] - 2 * m;
+                    this.y = y;
+                    this.h = h;
+                    const gm = app.canvas?.graph_mouse;
+                    const mx = gm ? gm[0] - n.pos[0] : -1;
+                    const my = gm ? gm[1] - n.pos[1] : -1;
+                    const hover = (yy, hh) => my >= yy && my <= yy + hh && mx >= m && mx <= m + w;
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = hover(y, h) ? "#E0702D" : LiteGraph.WIDGET_BGCOLOR;
+                    ctx.strokeStyle = LiteGraph.WIDGET_OUTLINE_COLOR;
+                    ctx.beginPath();
+                    ctx.roundRect(m, y, w, h, h * 0.5);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = LiteGraph.WIDGET_TEXT_COLOR;
+                    ctx.font = "13px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText(civ.state === "busy" ? "searching Civitai..." : "search triggers on Civitai", m + w / 2, y + h / 2 + 1);
+                    ctx.textAlign = "left";
+                    civ.rows.forEach((r, k) => {
+                        const ry = y + h + 4 + k * LINE_H;
+                        const usable = r.words && hover(ry, LINE_H);
+                        ctx.fillStyle = usable ? "#E0702D" : (r.words ? LiteGraph.WIDGET_TEXT_COLOR : LiteGraph.WIDGET_SECONDARY_TEXT_COLOR);
+                        let text = `${r.i}: ${r.text}`;
+                        while (text.length > 4 && ctx.measureText(text).width > w) text = text.slice(0, -2) + "…";
+                        ctx.fillText(text, m + 6, ry + LINE_H / 2);
+                    });
+                },
+                mouse(event, pos, n) {
+                    if (event.type !== "pointerdown" && event.type !== "mousedown") return false;
+                    const m = 15;
+                    if (pos[0] < m || pos[0] > n.size[0] - m || this.y == null) return false;
+                    if (pos[1] >= this.y && pos[1] <= this.y + this.h) {
+                        searchCivitai();
+                        return true;
+                    }
+                    const k = Math.floor((pos[1] - (this.y + this.h + 4)) / LINE_H);
+                    const r = civ.rows[k];
+                    if (r && r.words) {
+                        const trigW = byName(`triggers_${r.i}`);
+                        trigW.value = r.words;
+                        saveTriggers(byName(`lora_${r.i}`).value, r.words);
+                        n.setDirtyCanvas(true, true);
+                        return true;
+                    }
+                    return false;
+                },
+            });
+
             // redraw while the mouse moves over the node so the button hover updates
             node.onMouseMove = () => node.setDirtyCanvas(true, false);
 

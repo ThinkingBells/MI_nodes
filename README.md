@@ -46,6 +46,7 @@ Loads several LoRAs from one node and **remembers the trigger words of each one*
 - **On / off per LoRA**: a row that is off is skipped (the LoRA is not applied and its trigger words are not sent). Its fields are greyed out and the saved words are kept.
 - **One strength per LoRA**: from -10 to 10, applied to both model and clip.
 - **Trigger words per LoRA**: saved for that LoRA and filled in whenever you pick it again, in any node or workflow.
+- **Civitai lookup**: the **search triggers on Civitai** line at the bottom of the node finds your active LoRAs on Civitai and lists their trigger words, one line per LoRA. Click a line to put its words in that row's `triggers` field.
 - **Sent as text**: the `text` output is your incoming prompt followed by the trigger words of every active LoRA.
 - **Subgraph friendly**: every row uses standard widgets.
 
@@ -62,6 +63,8 @@ Loads several LoRAs from one node and **remembers the trigger words of each one*
 | nothing connected | `add_detail` (on) | `detail` |
 
 Rows set to `(none)` are ignored.
+
+**Civitai lookup and privacy:** nothing is sent until you click the line. Then only the SHA256 hash of each LoRA file is sent to `civitai.com` (never the file). Hashes are cached in `data/hashes.json`, so each file is hashed only once. A LoRA that is not on Civitai, or has no trigger words listed, is reported as such.
 
 **Good to know:** trigger words are tied to the LoRA path and file name inside the `loras` folder; renaming a file makes it a new LoRA. The LoRA list is read at startup, so restart ComfyUI after adding files.
 
@@ -182,6 +185,7 @@ Personal data is kept in the `data/` folder of this package and is ignored by gi
 | File | Content |
 |------|---------|
 | `triggers.json` | LoRA name to trigger words (MI Lora) |
+| `hashes.json` | Cached SHA256 of your LoRA files, for the Civitai lookup (MI Lora) |
 | `ratings.json` | Model name to rating, 1-3 (MI Unet Rate) |
 | `notes.json` | Model name to comment (MI Unet Rate) |
 
