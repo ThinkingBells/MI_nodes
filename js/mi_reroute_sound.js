@@ -6,11 +6,11 @@ const NONE = "(none)";
 const NOTE = "♪";
 const ACCENT = "#e0702d";
 
-// compact title: "♪ ding" (or just "♪" when no sound is chosen)
+// compact title: "♪ ding" (or "♪ none" when silent)
 function setTitle(node) {
     const sound = node.widgets?.find((w) => w.name === "sound")?.value;
-    const name = sound && sound !== NONE ? sound.replace(/\.wav$/i, "") : "";
-    node.title = name ? `${NOTE} ${name}` : NOTE;
+    const name = sound && sound !== NONE ? sound.replace(/\.wav$/i, "") : "none";
+    node.title = `${NOTE} ${name}`;
 }
 
 function play(name) {

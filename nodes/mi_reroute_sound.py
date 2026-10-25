@@ -25,6 +25,11 @@ def _sound_list():
     return [NONE] + names
 
 
+def _default_sound():
+    names = _sound_list()
+    return "ding.wav" if "ding.wav" in names else names[-1]
+
+
 @PromptServer.instance.routes.get("/mi_sound/{name}")
 async def get_sound(request):
     name = request.match_info["name"]
@@ -40,7 +45,7 @@ class MI_reroute_sound:
         return {
             "required": {
                 "value": (ANY,),
-                "sound": (_sound_list(),),
+                "sound": (_sound_list(), {"default": _default_sound()}),
             }
         }
 
