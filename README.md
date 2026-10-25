@@ -1,6 +1,6 @@
 # MI nodes
 
-**A pack of five ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side and save only the results you like.
+**A pack of six ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side and save only the results you like.
 
 All nodes live under a single menu category: **`MI nodes`**.
 
@@ -11,6 +11,7 @@ All nodes live under a single menu category: **`MI nodes`**.
 | [MI Embedding](#mi-embedding) | Embedding picker with strength, on/off switch and several rows |
 | [MI Compare 3 Images](#mi-compare-3-images) | Compare up to three images in the node: switch, wipe, save |
 | [MI Save Image](#mi-save-image) | Preview in `temp`, copy to `output` only when you press **SAVE** |
+| [MI Reroute Sound](#mi-reroute-sound) | A minimal reroute that plays a WAV sound when the flow passes through it |
 
 ## Installation
 
@@ -157,6 +158,22 @@ Receives one or several images and saves them to ComfyUI's `temp` folder with a 
 
 ---
 
+## MI Reroute Sound
+
+A minimal reroute: whatever you connect passes through unchanged, and when the flow goes through it the chosen **WAV sound plays**. Handy to know that a long generation has reached a point, without watching the screen.
+
+**Features**
+
+- **Accepts any type** (image, latent, model, text...) and returns it untouched, like a normal reroute.
+- **Sound picker**: a list of the `.wav` files in the `sounds/` folder. Picking one plays it as a preview.
+- **`(none)`** keeps it silent.
+- **Tiny node**: one input, one output, one dropdown.
+- Includes six small sounds (`ding`, `chime`, `beep`, `done`, `soft`, `low`). Drop your own `.wav` files into `sounds/` and restart ComfyUI to see them in the list.
+
+**Usage:** put it on any link (for example after the sampler or after MI Save Image), choose a sound and run the workflow. The sound plays in your browser when the node is executed. If a node is cached and does not run again, it does not play.
+
+---
+
 ## Where the data is stored
 
 Personal data is kept in the `data/` folder of this package and is ignored by git:
@@ -176,6 +193,7 @@ MI_nodes/
 ├── __init__.py        # registers all nodes
 ├── nodes/             # one Python module per node
 ├── js/                # frontend extensions
+├── sounds/            # .wav files for MI Reroute Sound
 ├── images/            # screenshots
 └── data/              # your ratings, notes and trigger words
 ```
