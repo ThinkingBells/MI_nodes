@@ -165,9 +165,8 @@ A minimal reroute: whatever you connect passes through unchanged, and when the f
 **Features**
 
 - **Accepts any type** (image, latent, model, text...) and returns it untouched, like a normal reroute.
-- **Sound picker**: a list of the `.wav` files in the `sounds/` folder. Picking one plays it as a preview.
-- **`(none)`** keeps it silent.
-- **Tiny node**: one input, one output, one dropdown.
+- **Tiny by design**: it starts collapsed, just three orange notes (♪♪♪) with the input and output dots.
+- **Sound picker**: expand the node (click the dot at the left of the title) to choose a `.wav` from the `sounds/` folder. Picking one plays it as a preview. `(none)` keeps it silent.
 - Includes six small sounds (`ding`, `chime`, `beep`, `done`, `soft`, `low`). Drop your own `.wav` files into `sounds/` and restart ComfyUI to see them in the list.
 
 **Usage:** put it on any link (for example after the sampler or after MI Save Image), choose a sound and run the workflow. The sound plays in your browser when the node is executed. If a node is cached and does not run again, it does not play.
