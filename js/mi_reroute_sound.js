@@ -3,10 +3,10 @@ import { api } from "../../scripts/api.js";
 
 const NODE = "MI_reroute_sound";
 const NONE = "(none)";
-const NOTE = "♪";
+const NOTE = "♪♪♪";
 const ACCENT = "#e0702d";
 
-// compact title: just the note
+// compact title: just three notes
 function setTitle(node) {
     node.title = NOTE;
 }
@@ -50,7 +50,7 @@ app.registerExtension({
             setTitle(this);
         };
 
-        // orange musical note as the whole title
+        // three orange musical notes as the whole title
         nodeType.prototype.onDrawTitleText = function (ctx, titleHeight, size, scale, fontStyle) {
             if (scale < 0.5) return;
             const baseline = (window.LiteGraph?.NODE_TITLE_TEXT_Y ?? 20) - titleHeight;
