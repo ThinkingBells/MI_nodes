@@ -48,6 +48,7 @@ def parse_boxes(raw):
             "text": str(b.get("text") or ""),
             "desc": str(b.get("desc") or ""),
             "palette": palette[:5],
+            "character": bool(b.get("character")),
         })
     return boxes
 
@@ -174,8 +175,8 @@ class MIBoundingBoxes:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "BOUNDING_BOX", "ARRAY", "INT", "INT")
-    RETURN_NAMES = ("preview", "bboxes", "elements", "width", "height")
+    RETURN_TYPES = ("IMAGE", "BOUNDING_BOX", "ARRAY", "INT", "INT", "STRING")
+    RETURN_NAMES = ("preview", "bboxes", "elements", "width", "height", "character_boxes")
     FUNCTION = "build"
     OUTPUT_NODE = True
     CATEGORY = "MI nodes"
@@ -194,7 +195,9 @@ class MIBoundingBoxes:
         frame = [to_pixels(b, width, height) for b in parsed]
         bboxes = [frame] if frame else []
         elements = [to_element(b) for b in parsed]
-        return {"ui": ui, "result": (preview, bboxes, elements, width, height)}
+        # numbers (as in the preview tags) of the object boxes marked as characters, for MOSS-Image Layout Prompt
+        characters = ", ".join(str(i + 1) for i, b in enumerate(parsed) if b["character"] and b["type"] != "text")
+        return {"ui": ui, "result": (preview, bboxes, elements, width, height, characters)}
 
     @staticmethod
     def _save_background(pil):

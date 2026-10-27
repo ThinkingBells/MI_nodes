@@ -205,7 +205,7 @@ A box editor drawn directly on the node's canvas, so it works in the **classic L
 - Boxes are numbered `01, 02...` in the canvas and in the preview; MOSS uses these numbers in its `character_boxes` field.
 - Optional **background image** input: used as the canvas background and its size replaces `width` / `height` (shown after the first run).
 
-**Outputs:** `preview` (IMAGE), `bboxes` (BOUNDING_BOX, pixels), `elements` (ARRAY, `bbox` = `[ymin, xmin, ymax, xmax]` on a 0-1000 grid), `width`, `height`.
+**Outputs:** `preview` (IMAGE), `bboxes` (BOUNDING_BOX, pixels), `elements` (ARRAY, `bbox` = `[ymin, xmin, ymax, xmax]` on a 0-1000 grid), `width`, `height`, `character_boxes` (STRING such as `1, 3`: the boxes whose checkbox at the right of the row is ticked; wire it to the `character_boxes` field of MOSS-Image Layout Prompt).
 
 ---
 

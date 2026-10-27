@@ -44,6 +44,7 @@ function load(node) {
     type: b.type === "text" ? "text" : "obj",
     text: b.text || "", desc: b.desc || "",
     palette: Array.isArray(b.palette) ? b.palette.filter((c) => typeof c === "string") : [],
+    character: !!b.character,
   }));
   st.sel = Math.min(st.sel, st.boxes.length - 1);
   st.rowsH = bottomH(node);
@@ -52,9 +53,10 @@ function load(node) {
 function colWidths(node) {
   const totalW = node.size[0] - 2 * PAD;
   const tagW = 24;
-  const rest = totalW - tagW - 2 * GAP;
+  const charW = 24;
+  const rest = totalW - tagW - charW - 3 * GAP;
   const textW = rest * 0.3;
-  return { tagW, textW, descW: rest - textW };
+  return { tagW, charW, textW, descW: rest - textW };
 }
 
 // rows grow with the wrapped text of their cells
@@ -89,7 +91,7 @@ function save(node) {
   if (!w) return;
   w.value = JSON.stringify(st.boxes.map((b) => ({
     x: round5(b.x), y: round5(b.y), w: round5(b.w), h: round5(b.h),
-    type: b.type, text: b.text, desc: b.desc, palette: b.palette,
+    type: b.type, text: b.text, desc: b.desc, palette: b.palette, character: b.character,
   })));
   syncRows(node);
   node.setDirtyCanvas(true, true);
@@ -155,14 +157,15 @@ function buttonRects(node, cw) {
     rects.push({ id, label, x: PAD + c * (bw + GAP), y: (cw.last_y ?? 0) + 2, w: bw, h: BTN_H });
   });
   // one row per box, pinned to the bottom of the node: type switch, text, description
-  const { tagW, textW, descW } = colWidths(node);
+  const { tagW, charW, textW, descW } = colWidths(node);
   const layout = rowLayout(node);
   let y = node.size[1] - bottomH(node) + 2;
   layout.forEach((row, i) => {
     let x = PAD;
     rects.push({ id: "tag", idx: i, x, y, w: tagW, h: row.h }); x += tagW + GAP;
     rects.push({ id: "text", idx: i, x, y, w: textW, h: row.h, lines: row.text }); x += textW + GAP;
-    rects.push({ id: "desc", idx: i, x, y, w: descW, h: row.h, lines: row.desc });
+    rects.push({ id: "desc", idx: i, x, y, w: descW, h: row.h, lines: row.desc }); x += descW + GAP;
+    rects.push({ id: "char", idx: i, x, y, w: charW, h: row.h });
     y += row.h + GAP;
   });
   return rects;
@@ -209,6 +212,24 @@ function drawWidget(ctx, node, cw, width, y) {
       ctx.fillRect(b.x, b.y, b.w, b.h);
       ctx.fillStyle = "#000";
       ctx.fillText(String(b.idx + 1).padStart(2, "0"), b.x + b.w / 2, b.y + b.h / 2 + 1);
+      continue;
+    }
+    if (b.id === "char") {
+      // checkbox: this box is a character (feeds the character_boxes output)
+      const on = bx.character;
+      const sz = 14, cx = b.x + (b.w - sz) / 2, cy = b.y + 3;
+      ctx.fillStyle = on ? ACCENT : "#2a2c2e";
+      ctx.strokeStyle = on ? ACCENT : "#666";
+      ctx.fillRect(cx, cy, sz, sz);
+      ctx.strokeRect(cx, cy, sz, sz);
+      if (on) {
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx + 3, cy + 7); ctx.lineTo(cx + 6, cy + 10); ctx.lineTo(cx + 11, cy + 4);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
       continue;
     }
     ctx.fillStyle = "#2a2c2e";
@@ -417,6 +438,9 @@ function runButton(node, id, event, idx) {
         st.sel++; done();
       }
       break;
+    case "char":
+      if (b) { b.character = !b.character; done(); }
+      break;
     case "del":
       if (b) { st.boxes.splice(st.sel, 1); st.sel = Math.min(st.sel, st.boxes.length - 1); done(); }
       break;
@@ -487,7 +511,7 @@ function onMouse(node, cw, event, pos) {
       setRect(d.box, d.ax, d.ay, ux, uy);
     } else if (d.moved) {
       if (!d.box) {
-        d.box = { x: d.ax, y: d.ay, w: 0, h: 0, type: "obj", text: "", desc: "", palette: [] };
+        d.box = { x: d.ax, y: d.ay, w: 0, h: 0, type: "obj", text: "", desc: "", palette: [], character: false };
         st.boxes.push(d.box);
         st.sel = st.boxes.length - 1;
       }
