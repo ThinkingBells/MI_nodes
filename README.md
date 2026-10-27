@@ -8,7 +8,7 @@
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-custom%20nodes-1fb6d5.svg)](https://github.com/comfyanonymous/ComfyUI)
 [![Comfy Registry](https://img.shields.io/badge/Comfy%20Registry-mi--nodes-blue.svg)](https://registry.comfy.org/publishers/thinkingbells/nodes/mi-nodes)
 
-**A pack of six ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered (and Civitai-searchable) trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side, save only the results you like, and get a sound when a long run reaches a point.
+**A pack of seven ComfyUI custom nodes** for everyday Stable Diffusion work: stack LoRAs with remembered (and Civitai-searchable) trigger words, pick embeddings from a dropdown, rate your diffusion models, compare three images side by side, save only the results you like, and get a sound when a long run reaches a point.
 
 All nodes live under one menu category, **`MI nodes`**, and show the same **MI nodes** badge.
 
@@ -20,6 +20,7 @@ All nodes live under one menu category, **`MI nodes`**, and show the same **MI n
 | [MI Compare 3 Images](#mi-compare-3-images) | Compare up to three images inside the node: switch, wipe, save |
 | [MI Save Image](#mi-save-image) | Preview in `temp`, copy to `output` only when you press **SAVE** |
 | [MI Reroute Sound](#mi-reroute-sound) | A minimal reroute that plays a WAV sound when the flow passes through it |
+| [MI Bounding Boxes](#mi-bounding-boxes) | Draw labelled boxes on a canvas inside the node (classic LiteGraph) for MOSS-Image and Ideogram |
 
 ## Installation
 
@@ -187,6 +188,24 @@ A minimal reroute: whatever you connect passes through unchanged, and when the f
 - Includes six small sounds (`ding`, `chime`, `beep`, `done`, `soft`, `low`). Drop your own `.wav` files into `sounds/` and restart ComfyUI to see them in the list.
 
 **Usage:** put it on any link (for example after the sampler or after MI Save Image), choose a sound and run the workflow. The sound plays in your browser when the node is executed. If a node is cached and does not run again, it does not play.
+
+---
+
+## MI Bounding Boxes
+
+A box editor drawn directly on the node's canvas, so it works in the **classic LiteGraph** frontend (no Vue widget). It produces the same data as the core *Create Bounding Boxes* node, so you can wire it to **MOSS-Image Layout Prompt**, **Build JSON Prompt (Ideogram)** or the Flux layout prompt.
+
+![MI Bounding Boxes node](images/mi_bounding_boxes.png)
+
+**Usage**
+
+- Drag on an empty part of the canvas to draw a box; drag a box to move it; drag a corner handle of the selected box to resize it.
+- Each box gets a row under the canvas with its number (in the box colour), a short **text** field (text to render; leave it empty for a plain object) and a **description** field. Click a field and type; long text wraps and the node grows.
+- Buttons: **Back / Front** (change the order: first box = background, last = foreground) and **Delete**.
+- Boxes are numbered `01, 02...` in the canvas and in the preview; MOSS uses these numbers in its `character_boxes` field.
+- Optional **background image** input: used as the canvas background and its size replaces `width` / `height` (shown after the first run).
+
+**Outputs:** `preview` (IMAGE), `bboxes` (BOUNDING_BOX, pixels), `elements` (ARRAY, `bbox` = `[ymin, xmin, ymax, xmax]` on a 0-1000 grid), `width`, `height`.
 
 ---
 

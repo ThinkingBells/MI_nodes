@@ -1,9 +1,9 @@
-"""MI nodes: MI Lora, MI Unet Rate, MI Embedding, MI Compare 3 Images, MI Save Image and MI Reroute Sound in one package."""
-from .nodes import mi_embedding, mi_lora, mi_reroute_sound, mi_save_image, mi_unet_rate, compare3
+"""MI nodes: MI Lora, MI Unet Rate, MI Embedding, MI Compare 3 Images, MI Save Image, MI Reroute Sound and MI Bounding Boxes in one package."""
+from .nodes import mi_embedding, mi_lora, mi_reroute_sound, mi_save_image, mi_unet_rate, compare3, mi_bbox
 
 NODE_CLASS_MAPPINGS = {}
 NODE_DISPLAY_NAME_MAPPINGS = {}
-for _m in (mi_lora, mi_unet_rate, mi_embedding, compare3, mi_save_image, mi_reroute_sound):
+for _m in (mi_lora, mi_unet_rate, mi_embedding, compare3, mi_save_image, mi_reroute_sound, mi_bbox):
     NODE_CLASS_MAPPINGS.update(_m.NODE_CLASS_MAPPINGS)
     NODE_DISPLAY_NAME_MAPPINGS.update(_m.NODE_DISPLAY_NAME_MAPPINGS)
 
