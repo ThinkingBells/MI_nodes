@@ -40,9 +40,10 @@ function flash(btn, text) {
   }, 900);
 }
 
-// same confirmation sound as MI Save Image (sounds/c1.wav)
-function playSaveSound() {
-  new Audio(api.apiURL("/mi_sound/c1.wav")).play().catch(() => {});
+// sounds live in the package's sounds/ folder (same ones as the other MI nodes)
+function playSound(name) {
+  if (!name || name === "(none)") return;
+  new Audio(api.apiURL(`/mi_sound/${encodeURIComponent(name)}`)).play().catch(() => {});
 }
 
 function toast(msg) {
@@ -252,22 +253,29 @@ function saveState(node) {
   };
 }
 
-function setImages(node, metas) {
+// `sound` is only passed after a run: it plays once every connected image has loaded
+// (not when a saved workflow restores its previews)
+function setImages(node, metas, sound) {
   const imgs = [null, null, null];
-  for (const m of metas) {
+  const valid = metas.filter((m) => (m.slot || 1) >= 1 && (m.slot || 1) <= 3);
+  let pending = valid.length;
+  const settled = () => {
+    if (--pending === 0 && node._c3Imgs === imgs) playSound(sound);
+  };
+  for (const m of valid) {
     const idx = (m.slot || 1) - 1;
-    if (idx >= 0 && idx < 3) {
-      const entry = { ...m, url: viewUrl(m) };
-      imgs[idx] = entry;
-      // Preload to learn the resolution, then redraw the labels.
-      const probe = new Image();
-      probe.onload = () => {
-        entry.w = probe.naturalWidth;
-        entry.h = probe.naturalHeight;
-        if (node._c3Imgs?.[idx] === entry) refresh(node);
-      };
-      probe.src = entry.url;
-    }
+    const entry = { ...m, url: viewUrl(m) };
+    imgs[idx] = entry;
+    // Preload to learn the resolution, then redraw the labels.
+    const probe = new Image();
+    probe.onload = () => {
+      entry.w = probe.naturalWidth;
+      entry.h = probe.naturalHeight;
+      if (node._c3Imgs?.[idx] === entry) refresh(node);
+      settled();
+    };
+    probe.onerror = settled;
+    probe.src = entry.url;
   }
   node._c3Imgs = imgs;
   if (typeof node._c3Show !== "string" && !imgs[(node._c3Show || 1) - 1]) {
@@ -296,7 +304,7 @@ async function saveToOutput(node, n, btn) {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) { toast(`Save failed: ${data.error || resp.status}`); return; }
     flash(btn, "Saved");
-    playSaveSound();
+    playSound("c1.wav"); // same confirmation sound as MI Save Image
   } catch (e) {
     console.warn("[Compare3] save failed", e);
     toast("Could not save to output");
@@ -349,10 +357,20 @@ app.registerExtension({
     });
     node.setSize([Math.max(node.size[0], 440), 480]);
 
+    // hear the sound when you pick it
+    const soundW = node.widgets?.find((w) => w.name === "sound");
+    if (soundW) {
+      const cb = soundW.callback;
+      soundW.callback = function (value) {
+        cb?.apply(this, arguments);
+        playSound(value);
+      };
+    }
+
     const onExecuted = node.onExecuted;
     node.onExecuted = function (message) {
       onExecuted?.apply(this, arguments);
-      setImages(this, message?.compare3 || []);
+      setImages(this, message?.compare3 || [], message?.mi_sound?.[0]);
     };
 
     const onResize = node.onResize;

@@ -12,6 +12,8 @@ import folder_paths
 from comfy.cli_args import args
 from server import PromptServer
 
+from .mi_reroute_sound import NONE, _default_sound, _sound_list
+
 
 def unique_name(directory, stamp, slot):
     """MM-dd-HH-mm-ss-imageN.png, with _2, _3... if that name is already taken."""
@@ -37,6 +39,11 @@ class Compare3:
     @classmethod
     def INPUT_TYPES(s):
         return {
+            "required": {
+                # played in the browser when all the connected images are ready to view
+                "sound": (_sound_list(), {"default": _default_sound(),
+                                          "tooltip": "Sound played when all the images are ready."}),
+            },
             "optional": {
                 "image1": ("IMAGE", {"tooltip": "First image (optional)."}),
                 "image2": ("IMAGE", {"tooltip": "Second image (optional)."}),
@@ -49,7 +56,7 @@ class Compare3:
     OUTPUT_NODE = True
     CATEGORY = "MI nodes"
 
-    def compare_images(self, image1=None, image2=None, image3=None):
+    def compare_images(self, sound=NONE, image1=None, image2=None, image3=None):
         present = [(i, t) for i, t in enumerate((image1, image2, image3), 1) if t is not None]
         results = []
         stamp = datetime.now().strftime("%m-%d-%H-%M-%S")
@@ -60,7 +67,10 @@ class Compare3:
             img.save(os.path.join(self.output_dir, file), compress_level=4)
             results.append({"filename": file, "subfolder": "",
                             "type": self.type, "slot": slot})
-        return {"ui": {"compare3": results}}
+        ui = {"compare3": results}
+        if results and sound and sound != NONE:
+            ui["mi_sound"] = [sound]
+        return {"ui": ui}
 
 
 @PromptServer.instance.routes.post("/compare3/save")
