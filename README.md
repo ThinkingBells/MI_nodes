@@ -167,7 +167,7 @@ Receives one or several images and saves them to ComfyUI's `temp` folder with a 
 **Features**
 
 - **Preview first, save later**: no more `output` folder full of discarded results.
-- **SAVE button** on the node. A short confirmation sound (`save.wav`) plays when the image has been copied to `output`.
+- **SAVE button** on the node. A short confirmation sound (`c1.wav`) plays when the image has been copied to `output`.
 - **Date-based file names**: `filename_prefix` defaults to `%date:MM-dd-hh-mm-ss%` (tokens `yyyy`, `yy`, `MM`, `dd`, `hh`, `mm`, `ss`). A subfolder can be included, e.g. `portraits/%date:yyyy-MM-dd%`.
 - **Never overwrites**: if a name exists, `_1`, `_2`... is appended.
 - **Sound when an image is ready**: pick a WAV in the `sound` dropdown (same sounds as MI Reroute Sound, `(none)` keeps it silent) and it plays in your browser each time an image arrives at the node. Default: `ding`. If the node is cached and does not run again, it does not play.
@@ -186,7 +186,7 @@ A minimal reroute: whatever you connect passes through unchanged, and when the f
 - **Accepts any type** (image, latent, model, text...) and returns it untouched, like a normal reroute.
 - **Tiny by design**: it starts collapsed, just three orange notes (♪♪♪) with the input and output dots.
 - **Sound picker**: expand the node (click the dot at the left of the title) to choose a `.wav` from the `sounds/` folder. Picking one plays it as a preview. `(none)` keeps it silent.
-- Includes seven small sounds (`ding`, `chime`, `beep`, `done`, `soft`, `low`, `save`). Drop your own `.wav` files into `sounds/` and restart ComfyUI to see them in the list.
+- Includes seven small sounds (`ding`, `chime`, `beep`, `done`, `soft`, `low`, `c1`). Drop your own `.wav` files into `sounds/` and restart ComfyUI to see them in the list.
 
 **Usage:** put it on any link (for example after the sampler or after MI Save Image), choose a sound and run the workflow. The sound plays in your browser when the node is executed. If a node is cached and does not run again, it does not play.
 

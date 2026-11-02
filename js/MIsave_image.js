@@ -100,7 +100,7 @@ app.registerExtension({
                     });
                     const data = await res.json();
                     flash(res.ok ? "SAVED" : "ERROR");
-                    if (res.ok) playSound("save.wav"); // confirmation sound when SAVE copies the image
+                    if (res.ok) playSound("c1.wav"); // confirmation sound when SAVE copies the image
                     if (!res.ok) console.error("[MIsave_image]", data.error);
                 } catch (e) {
                     flash("ERROR");
