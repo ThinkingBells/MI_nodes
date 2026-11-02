@@ -104,7 +104,7 @@ app.registerExtension({
                     const x = btnX(drawNode.size[0]);
                     const h = BTN_H;
                     ctx.save();
-                    ctx.fillStyle = this.pressed ? "#F66844" : this.hover ? "#F66844" : "#3a3a3a";
+                    ctx.fillStyle = this.pressed ? ACCENT : this.hover ? ACCENT : "#3a3a3a";
                     ctx.strokeStyle = "#666";
                     ctx.beginPath();
                     ctx.roundRect(x, y + 2, BTN_W, h, 6);
