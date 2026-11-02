@@ -128,7 +128,7 @@ app.registerExtension({
                     ctx.roundRect(x, y + 2, BTN_W, h, 6);
                     ctx.fill();
                     ctx.stroke();
-                    ctx.fillStyle = this.pressed || this.hover ? "#000" : "#ddd";
+                    ctx.fillStyle = this.pressed || this.hover ? "#fff" : "#ddd";
                     ctx.font = "bold 12px sans-serif";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
