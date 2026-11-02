@@ -124,11 +124,19 @@ async def misave_image_save(request):
         return web.json_response({"error": "Invalid prefix"}, status=400)
     os.makedirs(dest_dir, exist_ok=True)
 
+    keep_workflow = data.get("save_workflow", True) is not False
+
     saved = []
     for i, src in enumerate(sources):
         name = f"{base}_{i:02d}" if len(sources) > 1 else base
         dst = unique_path(dest_dir, name, os.path.splitext(src)[1])
-        shutil.copy2(src, dst)
+        if keep_workflow or not src.lower().endswith(".png"):
+            shutil.copy2(src, dst)
+        else:
+            # re-encode without the text chunks (prompt / workflow)
+            with Image.open(src) as img:
+                img.load()
+                img.save(dst, compress_level=4)
         saved.append(os.path.relpath(dst, out_dir).replace("\\", "/"))
 
     return web.json_response({"saved": saved})
