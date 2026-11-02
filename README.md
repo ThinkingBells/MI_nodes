@@ -170,6 +170,7 @@ Receives one or several images and saves them to ComfyUI's `temp` folder with a 
 - **SAVE button** on the node.
 - **Date-based file names**: `filename_prefix` defaults to `%date:MM-dd-hh-mm-ss%` (tokens `yyyy`, `yy`, `MM`, `dd`, `hh`, `mm`, `ss`). A subfolder can be included, e.g. `portraits/%date:yyyy-MM-dd%`.
 - **Never overwrites**: if a name exists, `_1`, `_2`... is appended.
+- **Sound when an image is ready**: pick a WAV in the `sound` dropdown (same sounds as MI Reroute Sound, `(none)` keeps it silent) and it plays in your browser each time an image arrives at the node. Default: `ding`. If the node is cached and does not run again, it does not play.
 - **Save Workflow switch** (orange = on, same as in MI Compare 3 Images), next to the SAVE button. On: the workflow and prompt stay embedded in the saved PNG, so it can be dragged back into ComfyUI. Off: the image is saved clean, without them. The choice is stored with the node.
 
 ---

@@ -11,6 +11,8 @@ import folder_paths
 from comfy.cli_args import args
 from server import PromptServer
 
+from .mi_reroute_sound import NONE, _default_sound, _sound_list
+
 DEFAULT_PREFIX = "%date:MM-dd-hh-mm-ss%"
 
 _DATE_TOKENS = (
@@ -58,6 +60,8 @@ class MIsave_image:
             "required": {
                 "images": ("IMAGE",),
                 "filename_prefix": ("STRING", {"default": DEFAULT_PREFIX}),
+                # played in the browser each time an image is ready (same sounds as MI Reroute Sound)
+                "sound": (_sound_list(), {"default": _default_sound()}),
             },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
         }
@@ -68,7 +72,7 @@ class MIsave_image:
     OUTPUT_NODE = True
     CATEGORY = "MI nodes"
 
-    def preview(self, images, filename_prefix=DEFAULT_PREFIX, prompt=None, extra_pnginfo=None):
+    def preview(self, images, filename_prefix=DEFAULT_PREFIX, sound=NONE, prompt=None, extra_pnginfo=None):
         os.makedirs(self.temp_dir, exist_ok=True)
         base = os.path.basename(format_name(filename_prefix)) or "image"
         results = []
@@ -92,7 +96,10 @@ class MIsave_image:
             img.save(path, pnginfo=metadata, compress_level=4)
             results.append({"filename": os.path.basename(path), "subfolder": "", "type": "temp"})
 
-        return {"ui": {"images": results}, "result": (images,)}
+        ui = {"images": results}
+        if sound and sound != NONE:
+            ui["mi_sound"] = [sound]
+        return {"ui": ui, "result": (images,)}
 
 
 @PromptServer.instance.routes.post("/MIsave_image/save")

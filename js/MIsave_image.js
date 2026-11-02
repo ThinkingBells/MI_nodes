@@ -11,6 +11,12 @@ const WF_LABEL = "Save Workflow";
 const SW_W = 34;
 const SW_H = 18;
 
+// the sounds live in the package's sounds/ folder (same ones as MI Reroute Sound)
+function playSound(name) {
+    if (!name || name === "(none)") return;
+    new Audio(api.apiURL(`/mi_sound/${encodeURIComponent(name)}`)).play().catch(() => {});
+}
+
 app.registerExtension({
     name: "MIsave_image.SaveButton",
 
@@ -21,6 +27,8 @@ app.registerExtension({
         nodeType.prototype.onExecuted = function (message) {
             onExecuted?.apply(this, arguments);
             this._misaveImages = message?.images ?? [];
+            // an image is ready: play the chosen sound
+            if (this._misaveImages.length) playSound(message?.mi_sound?.[0]);
         };
 
         const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -29,6 +37,16 @@ app.registerExtension({
 
             const node = this;
             let widget; // the widget instance ComfyUI actually keeps (set below)
+
+            // hear the sound when you pick it
+            const soundW = node.widgets?.find((w) => w.name === "sound");
+            if (soundW) {
+                const cb = soundW.callback;
+                soundW.callback = function (value) {
+                    cb?.apply(this, arguments);
+                    playSound(value);
+                };
+            }
             const flash = (text) => {
                 widget.label = text;
                 node.setDirtyCanvas(true, true);
