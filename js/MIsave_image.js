@@ -7,6 +7,7 @@ const BTN_H = 30;
 const ROW_H = BTN_H + 4;
 const btnX = (nodeWidth) => nodeWidth - MARGIN - BTN_W;
 const ACCENT = "#e0702d";
+const SAVED = "#3ec371"; // same green as MI Compare 3 Images
 const WF_LABEL = "Save Workflow";
 const SW_W = 34;
 const SW_H = 18;
@@ -123,13 +124,14 @@ app.registerExtension({
                     const x = btnX(drawNode.size[0]);
                     const h = BTN_H;
                     ctx.save();
-                    ctx.fillStyle = this.pressed ? ACCENT : this.hover ? ACCENT : "#3a3a3a";
-                    ctx.strokeStyle = "#666";
+                    const saved = this.label === "SAVED";
+                    ctx.fillStyle = saved ? SAVED : this.pressed || this.hover ? ACCENT : "#3a3a3a";
+                    ctx.strokeStyle = saved ? SAVED : "#666";
                     ctx.beginPath();
                     ctx.roundRect(x, y + 2, BTN_W, h, 6);
                     ctx.fill();
                     ctx.stroke();
-                    ctx.fillStyle = this.pressed || this.hover ? "#fff" : "#ddd";
+                    ctx.fillStyle = saved || this.pressed || this.hover ? "#fff" : "#ddd";
                     ctx.font = "bold 12px sans-serif";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
