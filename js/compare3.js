@@ -40,6 +40,11 @@ function flash(btn, text) {
   }, 900);
 }
 
+// same confirmation sound as MI Save Image (sounds/c1.wav)
+function playSaveSound() {
+  new Audio(api.apiURL("/mi_sound/c1.wav")).play().catch(() => {});
+}
+
 function toast(msg) {
   const t = app.extensionManager?.toast;
   if (t?.add) t.add({ severity: "warn", summary: "MiCompare 3 images", detail: msg, life: 2500 });
@@ -291,6 +296,7 @@ async function saveToOutput(node, n, btn) {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) { toast(`Save failed: ${data.error || resp.status}`); return; }
     flash(btn, "Saved");
+    playSaveSound();
   } catch (e) {
     console.warn("[Compare3] save failed", e);
     toast("Could not save to output");
