@@ -28,6 +28,28 @@ function setActive(btn, on) {
   btn.style.color = on ? "#fff" : "#999";
 }
 
+// Toggle switch: orange + knob right = ON, gray + knob left = OFF.
+function makeSwitch() {
+  const sw = document.createElement("button");
+  sw.type = "button";
+  sw.style.cssText =
+    "position:relative;flex:none;width:34px;height:18px;padding:0;border-radius:9px;" +
+    "cursor:pointer;border:1px solid #555;transition:background .15s,border-color .15s;";
+  const knob = document.createElement("span");
+  knob.style.cssText =
+    "position:absolute;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;" +
+    "transition:left .15s;";
+  sw.appendChild(knob);
+  return sw;
+}
+
+function setSwitch(sw, on) {
+  sw.style.background = on ? ACCENT : "#3a3c3e";
+  sw.style.borderColor = on ? ACCENT : "#555";
+  sw.firstChild.style.left = on ? "18px" : "2px";
+  sw.firstChild.style.background = on ? "#fff" : "#bbb";
+}
+
 function flash(btn, text) {
   const old = btn.dataset.label;
   btn.textContent = text;
@@ -79,11 +101,27 @@ function buildUI(node) {
     rowD.appendChild(btn);
     return btn;
   });
+  // each Save button has an "Auto S." switch beside it: ON = that image is saved
+  // to the output folder automatically after every run
+  const autoBtns = [];
   const saveBtns = [1, 2, 3].map((n) => {
+    const cell = document.createElement("div");
+    cell.style.cssText = "flex:1 1 0;min-width:0;display:flex;align-items:center;gap:4px;";
     const b = makeBtn(`Save ${n}`);
     b.dataset.label = `Save ${n}`;
     b.onclick = () => saveToOutput(node, n, b);
-    row2.appendChild(b);
+    const lab = document.createElement("span");
+    lab.textContent = "Auto S.";
+    lab.style.cssText = "flex:none;font:11px 'Segoe UI',sans-serif;color:#aaa;";
+    const sw = makeSwitch();
+    sw.onclick = () => {
+      node._c3Auto[n - 1] = !node._c3Auto[n - 1];
+      refresh(node);
+      saveState(node);
+    };
+    autoBtns.push(sw);
+    cell.append(b, lab, sw);
+    row2.appendChild(cell);
     return b;
   });
 
@@ -137,16 +175,7 @@ function buildUI(node) {
   metaLabel.textContent = "Save Workflow";
   metaLabel.style.cssText = "font:11px 'Segoe UI',sans-serif;color:#aaa;";
   // Toggle switch: green + knob right = ON, gray + knob left = OFF.
-  const metaBtn = document.createElement("button");
-  metaBtn.type = "button";
-  metaBtn.style.cssText =
-    "position:relative;flex:none;width:34px;height:18px;padding:0;border-radius:9px;" +
-    "cursor:pointer;border:1px solid #555;transition:background .15s,border-color .15s;";
-  const knob = document.createElement("span");
-  knob.style.cssText =
-    "position:absolute;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;" +
-    "transition:left .15s;";
-  metaBtn.appendChild(knob);
+  const metaBtn = makeSwitch();
   metaBtn.onclick = () => {
     node._c3Meta = !node._c3Meta;
     refresh(node);
@@ -155,7 +184,7 @@ function buildUI(node) {
   metaRow.append(metaLabel, metaBtn);
 
   root.append(row1, rowD, row2, info, metaRow, view);
-  node._c3 = { root, metaBtn, showBtns, wipeBtns, saveBtns, dims, img, imgB, bar, tagL, tagR, note, view };
+  node._c3 = { root, metaBtn, autoBtns, showBtns, wipeBtns, saveBtns, dims, img, imgB, bar, tagL, tagR, note, view };
   return root;
 }
 
@@ -192,10 +221,14 @@ function refresh(node) {
     ui.wipeBtns[i].style.opacity = imgs[a - 1] && imgs[b - 1] ? "1" : "0.5";
   });
   const metaOn = node._c3Meta !== false;
-  ui.metaBtn.style.background = metaOn ? ACCENT : "#3a3c3e";
-  ui.metaBtn.style.borderColor = metaOn ? ACCENT : "#555";
-  ui.metaBtn.firstChild.style.left = metaOn ? "18px" : "2px";
-  ui.metaBtn.firstChild.style.background = metaOn ? "#fff" : "#bbb";
+  setSwitch(ui.metaBtn, metaOn);
+  [0, 1, 2].forEach((i) => {
+    const on = !!node._c3Auto?.[i];
+    setSwitch(ui.autoBtns[i], on);
+    ui.autoBtns[i].title = on
+      ? `ON: image ${i + 1} is saved to the output folder after every run. Click to turn off.`
+      : `OFF: click to save image ${i + 1} automatically after every run.`;
+  });
   ui.metaBtn.title = metaOn
     ? "ON: the workflow is saved inside the images. Click to turn off."
     : "OFF: images are saved without the workflow. Click to turn on.";
@@ -248,6 +281,7 @@ function saveState(node) {
   node.properties[STATE_KEY] = {
     show: node._c3Show || 1,
     meta: node._c3Meta !== false,
+    auto: [0, 1, 2].map((i) => !!node._c3Auto?.[i]),
     images: (node._c3Imgs || []).map((m) =>
       m ? { filename: m.filename, subfolder: m.subfolder, type: m.type } : null),
   };
@@ -255,7 +289,8 @@ function saveState(node) {
 
 // `sound` is only passed after a run: it plays once every connected image has loaded
 // (not when a saved workflow restores its previews)
-function setImages(node, metas, sound) {
+// `autoSave` (also only after a run) saves the images whose "Auto S." switch is on
+function setImages(node, metas, sound, autoSave = false) {
   const imgs = [null, null, null];
   const valid = metas.filter((m) => (m.slot || 1) >= 1 && (m.slot || 1) <= 3);
   let pending = valid.length;
@@ -284,9 +319,14 @@ function setImages(node, metas, sound) {
   }
   refresh(node);
   saveState(node);
+  if (autoSave) {
+    imgs.forEach((m, i) => {
+      if (m && node._c3Auto?.[i]) saveToOutput(node, i + 1, node._c3.saveBtns[i], true);
+    });
+  }
 }
 
-async function saveToOutput(node, n, btn) {
+async function saveToOutput(node, n, btn, auto = false) {
   const m = node._c3Imgs?.[n - 1];
   if (!m) { toast(`Image ${n} is not available - run the workflow first`); return; }
   try {
@@ -304,7 +344,7 @@ async function saveToOutput(node, n, btn) {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) { toast(`Save failed: ${data.error || resp.status}`); return; }
     flash(btn, "Saved");
-    playSound("c1.wav"); // same confirmation sound as MI Save Image
+    if (!auto) playSound("c1.wav"); // same confirmation sound as MI Save Image
   } catch (e) {
     console.warn("[Compare3] save failed", e);
     toast("Could not save to output");
@@ -348,6 +388,7 @@ app.registerExtension({
     if (node.comfyClass !== "Compare3") return;
     node._c3Show = 1;
     node._c3Meta = true;
+    node._c3Auto = [false, false, false];
     node._c3Imgs = [null, null, null];
 
     const widget = node.addDOMWidget("compare3_ui", "compare3", buildUI(node), {
@@ -370,7 +411,7 @@ app.registerExtension({
     const onExecuted = node.onExecuted;
     node.onExecuted = function (message) {
       onExecuted?.apply(this, arguments);
-      setImages(this, message?.compare3 || [], message?.mi_sound?.[0]);
+      setImages(this, message?.compare3 || [], message?.mi_sound?.[0], true);
     };
 
     const onResize = node.onResize;
@@ -394,6 +435,7 @@ app.registerExtension({
       if (!s) return;
       this._c3Show = s.show || 1;
       this._c3Meta = s.meta !== false;
+      this._c3Auto = [0, 1, 2].map((i) => s.auto?.[i] === true);
       setImages(this, (s.images || [])
         .map((m, i) => (m ? { ...m, slot: i + 1 } : null)).filter(Boolean));
     };

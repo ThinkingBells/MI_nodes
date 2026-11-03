@@ -147,6 +147,7 @@ Compare **up to three images** inside the node itself.
 - **Show 1 / Show 2 / Show 3** buttons switch the displayed image.
 - **Wipe 1-2 / Wipe 1-3 / Wipe 2-3** buttons compare a pair: hover the viewer and a bar follows the cursor, revealing one image or the other.
 - **Save 1 / Save 2 / Save 3** buttons save the matching image to the `output` folder as `MM-dd-HH-mm-ss-imageN.png`, and play the same confirmation sound as MI Save Image (`c1.wav`) when it is saved.
+- **Auto S.** switch beside each Save button (orange = on): that image is saved to `output` automatically after every run, no click needed. Off by default; each switch is stored with the node.
 - The resolution of each image is shown under its Save button.
 - **Sound when the images are ready**: pick a WAV in the `sound` dropdown (same sounds as MI Reroute Sound, `(none)` keeps it silent). It plays in your browser once all the connected images have loaded and are ready to view, not when a saved workflow is reopened. Default: `ding`.
 - The viewer fills the node and scales when you resize it.
